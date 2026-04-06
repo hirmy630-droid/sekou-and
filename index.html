@@ -128,7 +128,7 @@
 
         .result-label-left {
             font-size: 14px;
-            font-weight: 900;
+            font-weight: 700;
             color: #ffffff;
             text-align: left;
             line-height: 1.3;
@@ -201,7 +201,7 @@
 
         .input-label-left {
             font-size: 14px;
-            font-weight: 900;
+            font-weight: 700;
             color: var(--label-gray);
             margin-right: 4px;
             white-space: nowrap;
@@ -210,7 +210,7 @@
         /* テンキー - セルと連結 */
         .keypad-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1px;
             background: var(--ios-border);
             margin: 0 12px 12px;
@@ -232,6 +232,7 @@
         .key-btn:active { background: #333; }
         .key-btn.orange { background: var(--ios-orange); font-weight: 700; }
         .key-btn.gray { background: #2c2c2e; color: var(--label-gray); font-size: 18px; font-weight: 700; }
+        .key-btn.light-gray { background: #4a4a4d; color: #ffffff; font-size: 18px; font-weight: 700; }
 
         .key-clear {
             font-size: 18px !important; 
@@ -382,28 +383,23 @@ if ('serviceWorker' in navigator) {
                     <span class="input-label-left">全長 (L)</span>
                     <div id="display-totalLength" class="input-value">0</div>
                 </div>
-            </div>
-
-            <!-- テンキー (連結デザイン) -->
+            </div>            <!-- テンキー (連結デザイン) -->
             <div class="keypad-container">
                 <button class="key-btn" onclick="pressKey('7')">7</button>
                 <button class="key-btn" onclick="pressKey('8')">8</button>
                 <button class="key-btn" onclick="pressKey('9')">9</button>
-                <button class="key-btn gray key-clear" onclick="pressKey('clearEntry')">C</button>
-                
+
                 <button class="key-btn" onclick="pressKey('4')">4</button>
                 <button class="key-btn" onclick="pressKey('5')">5</button>
                 <button class="key-btn" onclick="pressKey('6')">6</button>
-                <button class="key-btn gray key-clear" onclick="pressKey('clearAll')">AC</button>
-                
+
                 <button class="key-btn" onclick="pressKey('1')">1</button>
                 <button class="key-btn" onclick="pressKey('2')">2</button>
                 <button class="key-btn" onclick="pressKey('3')">3</button>
-                <button class="key-btn orange row-span-2 h-full" id="enter-btn-label" onclick="pressKey('enter')">⏎</button>
-                
+
                 <button class="key-btn" onclick="pressKey('0')">0</button>
                 <button class="key-btn" onclick="pressKey('00')">00</button>
-                <button class="key-btn" onclick="pressKey('000')">000</button>
+                <button class="key-btn light-gray key-clear" onclick="pressKey('clearEntry')">クリア</button>
             </div>
         </div>
 
@@ -415,16 +411,21 @@ if ('serviceWorker' in navigator) {
                         <span class="font-black text-base">全長: <span id="table-badge-L">-</span>㎜</span>
                         <span class="text-sm bg-[#ff9f0a] px-2 py-0.5 rounded font-bold text-black shadow-sm">割付表</span>
                     </div>
-                    <table class="w-full">
+                    <table class="w-full" style="table-layout:auto;">
                         <thead class="shadow-md">
-                            <tr class="bg-[#2c2c2e] text-[14px] text-zinc-400 uppercase font-bold border-b border-[#444]">
-                                <th class="py-2 border-r border-[#444] w-1/2 text-[#0a84ff] tracking-wider">片張り(mm)</th>
-                                <th class="py-2 w-1/2 text-[#30d158] tracking-wider">芯割り(mm)</th>
+                            <tr class="bg-[#2c2c2e] text-[14px] text-zinc-400 uppercase font-semibold border-b border-[#444]">
+                                <th class="py-2 px-2 border-r border-[#444] tracking-wider whitespace-nowrap" style="width:1%;">No.</th>
+                                <th class="py-2 border-r border-[#444] text-[#0a84ff] tracking-wider">片張り(mm)</th>
+                                <th class="py-2 text-[#30d158] tracking-wider">芯割り(mm)</th>
                             </tr>
                         </thead>
                         <tbody id="resultTableBody"></tbody>
                         <tfoot class="table-foot-row shadow-inner">
                             <tr class="font-bold border-t border-[#444]">
+                                <td class="py-2 px-2 border-r border-[#444] text-center whitespace-nowrap" style="width:1%;">
+                                    <span class="text-[14px] block opacity-70 mb-0.5">No.</span>
+                                    <span class="text-[18px]">-</span>
+                                </td>
                                 <td class="py-2 border-r border-[#444] text-center text-[#0a84ff]">
                                     <span class="text-[14px] block opacity-70 mb-0.5">合計枚数</span>
                                     <span class="text-[18px]"><span id="foot-totalCount">-</span>枚</span>
@@ -445,7 +446,7 @@ if ('serviceWorker' in navigator) {
     let currentActiveTab = 'calc';
     let focusedInputId = 'totalLength';
     let isOverwriteMode = true; 
-    const storageKey = 'seko_waritsuke_v10_final';
+    const storageKey = 'seko_waritsuke_v11_numbered_clear';
 
     const inputs = {
         totalLength: '',
@@ -477,13 +478,6 @@ if ('serviceWorker' in navigator) {
         if (key === 'clearEntry') {
             inputs[focusedInputId] = '';
             isOverwriteMode = false;
-        } else if (key === 'clearAll') {
-            inputs.totalLength = '';
-            inputs.size = '780';
-            isOverwriteMode = true;
-        } else if (key === 'enter') {
-            handleEnter();
-            return;
         } else {
             if (isOverwriteMode) {
                 inputs[focusedInputId] = key;
@@ -497,10 +491,6 @@ if ('serviceWorker' in navigator) {
         calculate();
     }
 
-    function handleEnter() {
-        if (focusedInputId === 'size') focusInput('totalLength');
-        else if (focusedInputId === 'totalLength') switchTab('table');
-    }
 
     function updateDisplay() {
         for (const key in inputs) {
@@ -595,6 +585,7 @@ if ('serviceWorker' in navigator) {
         for (let i = 0; i < maxRows; i++) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
+                <td class="table-cell px-2 border-r border-[#333] whitespace-nowrap" style="width:1%;">${i + 1}</td>
                 <td class="table-cell border-r border-[#333] text-[#0a84ff]">${taniList[i] !== undefined ? (typeof taniList[i] === 'number' ? taniList[i].toLocaleString() : taniList[i]) : '-'}</td>
                 <td class="table-cell text-[#30d158]">${shinList[i] !== undefined ? (typeof shinList[i] === 'number' ? shinList[i].toLocaleString() : shinList[i]) : '-'}</td>
             `;
